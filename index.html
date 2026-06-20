@@ -26,7 +26,7 @@
         .btn { background: #eef4f9; border: none; padding: 14px 34px; border-radius: 60px; font-weight: 600; font-size: 1rem; color: #1f4b62; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; border: 1px solid rgba(255,255,255,0.6); }
         .btn-primary { background: #1a4d66; color: white; border: 1px solid #2b6d8a; }
         .btn-primary:hover { background: #0f3f55; transform: scale(1.02); }
-        .btn-danger { background: #b13e3e; color: white; border: 1px solid #8a2e2e; }
+        .btn-danger { background: #b13e3e; color: white; border: 1px solid #8a2e2e; padding: 6px 16px; font-size: 0.8rem; }
         .btn-danger:hover { background: #8a2e2e; transform: scale(1.02); }
         .status-message { font-size: 0.95rem; padding: 6px 18px; border-radius: 40px; background: #e7f1f8; color: #1c5770; display: inline-flex; align-items: center; gap: 10px; font-weight: 500; }
         .status-message.success { background: #dff0e6; color: #1b6b4a; }
@@ -71,12 +71,9 @@
         .toast.show { opacity: 1; }
         .toast.success { background: #1f7a5a; }
         .toast.error { background: #b13e3e; }
-
-        /* 记住我相关样式 */
-        .remember-section { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
-        .remember-section .btn { font-size: 0.85rem; padding: 8px 16px; }
-        .activated-user { display: flex; align-items: center; gap: 12px; background: #dff0e6; padding: 8px 18px; border-radius: 60px; color: #1b6b4a; font-weight: 500; }
+        .activated-user { display: inline-flex; align-items: center; gap: 12px; background: #dff0e6; padding: 8px 18px; border-radius: 60px; color: #1b6b4a; font-weight: 500; margin: 0 auto; }
         .activated-user i { color: #1b6b4a; }
+        .remembered-area { text-align: center; margin-bottom: 20px; display: none; }
         @media (max-width: 700px) {
             .app-wrapper { padding: 18px 14px; }
             .logo-text { font-size: 1.4rem; }
@@ -89,7 +86,6 @@
             .folder-content { padding: 0 14px; }
             .folder-content.open { padding: 0 14px 20px 14px; }
             .video-grid { grid-template-columns: repeat(auto-fill, minmax(200px,1fr)); }
-            .remember-section { width: 100%; justify-content: center; }
         }
     </style>
 </head>
@@ -106,6 +102,7 @@
         </div>
     </header>
 
+    <!-- 激活区域 -->
     <div class="activation-area" id="activationArea">
         <div class="activation-input-group">
             <label for="phoneInput"><i class="fas fa-phone-alt"></i> 手机号</label>
@@ -117,12 +114,12 @@
         </div>
     </div>
 
-    <!-- ★★★ 记住我状态显示区 ★★★ -->
-    <div id="rememberedUserArea" style="display:none; text-align:center; margin-bottom:20px;">
-        <div class="activated-user" style="display:inline-flex;">
+    <!-- 记住我状态 -->
+    <div class="remembered-area" id="rememberedArea">
+        <div class="activated-user">
             <i class="fas fa-check-circle"></i>
-            <span>当前已激活: <strong id="rememberedPhone"></strong></span>
-            <button class="btn btn-danger" id="logoutBtn" style="padding:4px 14px; font-size:0.8rem;"><i class="fas fa-sign-out-alt"></i> 退出</button>
+            <span>当前已激活: <strong id="rememberedPhoneDisplay"></strong></span>
+            <button class="btn btn-danger" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> 退出</button>
         </div>
     </div>
 
@@ -148,13 +145,11 @@ if (!GITHUB_TOKEN) {
     document.body.innerHTML = '<div style="padding:50px;text-align:center;font-size:20px;color:#b13e3e;">⚠️ 缺少 token 参数<br><br><small>访问格式: admin.html?token=你的Token</small></div>';
     throw new Error('缺少 token 参数');
 }
+
         const REPO_OWNER = '51chengkao';
         const REPO_NAME = 'study';
         const LABEL_ACTIVATED = '已激活';
 
-        // ================================================================
-        // 配置区
-        // ================================================================
         const BASE_VIDEO_URL = 'http://cddsw.zyzcc.cn/26xinjian/';
         const STORAGE_KEY = 'chengkao_activated_phone';
 
@@ -201,24 +196,38 @@ if (!GITHUB_TOKEN) {
         }
 
         // ================================================================
-        // localStorage 操作
+        // localStorage 操作（带调试日志）
         // ================================================================
         function getStoredPhone() {
             try {
-                return localStorage.getItem(STORAGE_KEY) || '';
-            } catch { return ''; }
+                const value = localStorage.getItem(STORAGE_KEY);
+                console.log('📖 读取 localStorage:', value);
+                return value || '';
+            } catch (e) {
+                console.warn('读取 localStorage 失败:', e);
+                return '';
+            }
         }
 
         function setStoredPhone(phone) {
             try {
                 localStorage.setItem(STORAGE_KEY, phone);
-            } catch {}
+                console.log('💾 保存到 localStorage:', phone);
+                // 验证是否保存成功
+                const saved = localStorage.getItem(STORAGE_KEY);
+                console.log('✅ 验证保存:', saved);
+            } catch (e) {
+                console.warn('保存 localStorage 失败:', e);
+            }
         }
 
         function clearStoredPhone() {
             try {
                 localStorage.removeItem(STORAGE_KEY);
-            } catch {}
+                console.log('🗑️ 已清除 localStorage');
+            } catch (e) {
+                console.warn('清除 localStorage 失败:', e);
+            }
         }
 
         // ================================================================
@@ -230,8 +239,8 @@ if (!GITHUB_TOKEN) {
         const statusMsg = document.getElementById('statusMessage');
         const globalStatusText = document.getElementById('globalStatusText');
         const toast = document.getElementById('toast');
-        const rememberedUserArea = document.getElementById('rememberedUserArea');
-        const rememberedPhone = document.getElementById('rememberedPhone');
+        const rememberedArea = document.getElementById('rememberedArea');
+        const rememberedPhoneDisplay = document.getElementById('rememberedPhoneDisplay');
         const logoutBtn = document.getElementById('logoutBtn');
         const activationArea = document.getElementById('activationArea');
 
@@ -386,6 +395,20 @@ if (!GITHUB_TOKEN) {
         }
 
         // ================================================================
+        // 显示/隐藏记住我区域
+        // ================================================================
+        function showRememberedUser(phone) {
+            rememberedPhoneDisplay.textContent = phone;
+            rememberedArea.style.display = 'block';
+            activationArea.style.display = 'none';
+        }
+
+        function hideRememberedUser() {
+            rememberedArea.style.display = 'none';
+            activationArea.style.display = 'flex';
+        }
+
+        // ================================================================
         // 激活逻辑
         // ================================================================
         async function performActivation(phone, remember = true) {
@@ -410,7 +433,6 @@ if (!GITHUB_TOKEN) {
                     phoneInput.value = rawPhone;
                     showToast(`✅ 欢迎回来，${rawPhone}`, 'success');
                     
-                    // 保存到 localStorage
                     if (remember) {
                         setStoredPhone(rawPhone);
                         showRememberedUser(rawPhone);
@@ -442,25 +464,12 @@ if (!GITHUB_TOKEN) {
         }
 
         // ================================================================
-        // 记住我 UI
-        // ================================================================
-        function showRememberedUser(phone) {
-            rememberedPhone.textContent = phone;
-            rememberedUserArea.style.display = 'block';
-            activationArea.style.display = 'none';
-        }
-
-        function hideRememberedUser() {
-            rememberedUserArea.style.display = 'none';
-            activationArea.style.display = 'flex';
-        }
-
-        // ================================================================
-        // 自动登录检查
+        // 自动登录
         // ================================================================
         async function tryAutoLogin() {
             const storedPhone = getStoredPhone();
             if (storedPhone) {
+                console.log('🔄 尝试自动登录:', storedPhone);
                 setStatus('⏳ 正在自动验证...', 'info');
                 try {
                     const authorized = await checkPhoneOnGitHub(storedPhone);
@@ -468,14 +477,16 @@ if (!GITHUB_TOKEN) {
                         isActivated = true;
                         activePhone = storedPhone;
                         updateAllCards(true);
-                        showToast(`✅ 欢迎回来，${storedPhone}`, 'success');
                         showRememberedUser(storedPhone);
                         setStatus(`✅ 已自动激活 (${storedPhone})`, 'success');
+                        showToast(`✅ 欢迎回来，${storedPhone}`, 'success');
+                        console.log('✅ 自动登录成功');
                         return true;
                     } else {
-                        // 存储的手机号已失效，清除记录
                         clearStoredPhone();
+                        hideRememberedUser();
                         setStatus('📱 请重新输入手机号激活', 'info');
+                        console.log('⚠️ 存储的手机号已失效，已清除');
                         return false;
                     }
                 } catch (err) {
@@ -484,6 +495,7 @@ if (!GITHUB_TOKEN) {
                     return false;
                 }
             }
+            console.log('📭 没有存储的手机号');
             return false;
         }
 
@@ -494,14 +506,14 @@ if (!GITHUB_TOKEN) {
             renderSubjects(false);
             updateAllCards(false);
             
-            // 先检查 localStorage 是否有记录
             const loggedIn = await tryAutoLogin();
             if (!loggedIn) {
                 hideRememberedUser();
                 setStatus('📱 输入已激活的手机号，或试看第1、3、5节', 'info');
             }
             
-            console.log('🎯 成考视频学习平台已加载（GitHub Issues 存储 + 记住我）');
+            console.log('🎯 成考视频学习平台已加载（GitHub Issues + 记住我）');
+            console.log('📌 调试提示: 在控制台输入 localStorage.getItem("chengkao_activated_phone") 查看存储的值');
             if (GITHUB_TOKEN === '你的GitHub Personal Access Token') {
                 console.warn('⚠️ 请先在代码中填入你的 GitHub Token！');
             }
@@ -530,16 +542,7 @@ if (!GITHUB_TOKEN) {
                 deactivate();
                 hideRememberedUser();
                 setStatus('🔒 已退出，请输入手机号重新激活', 'info');
-            }
-        });
-
-        // 双击手机号输入框可以清除缓存（方便测试）
-        phoneInput.addEventListener('dblclick', function() {
-            if (confirm('清除本地缓存的激活状态？')) {
-                clearStoredPhone();
-                hideRememberedUser();
-                setStatus('📱 已清除缓存，请重新输入手机号', 'info');
-                showToast('✅ 已清除', 'success');
+                showToast('✅ 已退出', 'success');
             }
         });
 
