@@ -202,20 +202,27 @@ if (!GITHUB_TOKEN) {
         // ================================================================
         // GitHub API ★ 关键改动：state=open 只查未关闭的
         // ================================================================
-        async function fetchPhoneList() {
-            const url = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/issues?labels=${encodeURIComponent(LABEL_ACTIVATED)}&state=open&per_page=100`;
-            const response = await fetch(url, {
-                headers: {
-                    'Authorization': `token ${GITHUB_TOKEN}`,
-                    'Accept': 'application/vnd.github.v3+json'
-                }
-            });
-            if (!response.ok) {
-                throw new Error(`GitHub API 错误: ${response.status}`);
+async function fetchPhoneList() {
+    // ★★★ 关键修改：明确过滤 state=open，只获取未关闭的 Issue ★★★
+    const url = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/issues?labels=${encodeURIComponent(LABEL_ACTIVATED)}&state=open&per_page=100`;
+    try {
+        const response = await fetch(url, {
+            headers: {
+                'Authorization': `token ${GITHUB_TOKEN}`,
+                'Accept': 'application/vnd.github.v3+json'
             }
-            const issues = await response.json();
-            return issues.map(issue => issue.title.trim());
+        });
+        if (!response.ok) {
+            throw new Error(`GitHub API 错误: ${response.status}`);
         }
+        const issues = await response.json();
+        console.log("✅ 获取到的开放 Issue 列表:", issues); // 添加日志，便于调试
+        return issues.map(issue => issue.title.trim());
+    } catch (error) {
+        console.error("❌ 获取列表失败:", error);
+        throw error; // 将错误向上抛出，让调用方处理
+    }
+}
 
         async function addPhoneToGitHub(phone) {
             const url = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/issues`;
