@@ -85,19 +85,17 @@
             .activation-area { flex-direction: column; padding: 14px 16px; gap: 8px; }
             .status-message { font-size: 0.8rem; padding: 4px 12px; }
 
-            /* ★★★ 修复：输入框和按钮同行 ★★★ */
+            /* ★★★ 手机上隐藏标签 ★★★ */
+            .activation-input-group label {
+                display: none;
+            }
+
             .activation-input-group {
                 display: flex;
                 flex-direction: row;
                 flex-wrap: wrap;
                 align-items: center;
                 gap: 6px;
-            }
-            .activation-input-group label {
-                width: 100%;
-                font-size: 0.85rem;
-                font-weight: 600;
-                margin-bottom: 2px;
             }
             .activation-input-group input {
                 flex: 1;
