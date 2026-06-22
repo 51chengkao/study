@@ -83,9 +83,48 @@
             .header { flex-direction: column; align-items: stretch; gap: 10px; }
             .logo-text { font-size: 1.2rem; }
             .activation-area { flex-direction: column; padding: 14px 16px; gap: 10px; }
-            .activation-input-group { flex-direction: column; align-items: stretch; }
-            .activation-input-group input { min-width: unset; }
-            .btn { justify-content: center; }
+            .activation-input-group {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 8px;
+            }
+            .activation-input-group label {
+                font-size: 0.85rem;
+            }
+            .activation-input-group input {
+                min-width: unset;
+                padding: 10px 16px;
+                font-size: 0.95rem;
+                width: 100%;
+                box-sizing: border-box;
+            }
+            .btn {
+                justify-content: center;
+                padding: 10px 20px;
+                font-size: 0.9rem;
+            }
+            /* 特殊：让输入框和按钮同行 */
+            .activation-input-group {
+                flex-direction: row;
+                flex-wrap: wrap;
+                align-items: center;
+            }
+            .activation-input-group label {
+                width: 100%;
+                margin-bottom: 2px;
+            }
+            .activation-input-group input {
+                flex: 1;
+                min-width: 100px;
+                padding: 10px 14px;
+                font-size: 0.9rem;
+            }
+            .activation-input-group .btn {
+                flex: 0 0 auto;
+                padding: 10px 16px;
+                font-size: 0.85rem;
+            }
+            .status-message { font-size: 0.8rem; padding: 4px 12px; }
             .folder-header { padding: 12px 14px; }
             .folder-header-left h2 { font-size: 1rem; }
             .folder-content { padding: 0 14px; }
@@ -103,7 +142,6 @@
             .video-player-placeholder { font-size: 0.65rem; padding: 4px 8px; min-height: 30px; }
             .unlock-hint { font-size: 0.55rem; padding: 1px 8px; }
             .free-tag { font-size: 0.5rem; padding: 1px 6px; }
-            .status-message { font-size: 0.8rem; padding: 4px 12px; }
             .activation-badge { font-size: 0.75rem; padding: 6px 14px; }
             .footer-note { font-size: 0.7rem; gap: 10px; }
             .activated-user { font-size: 0.8rem; padding: 4px 12px; }
@@ -117,6 +155,15 @@
             }
             .video-title { font-size: 0.7rem; }
             .video-desc { font-size: 0.6rem; }
+            .activation-input-group input {
+                min-width: 80px;
+                padding: 8px 12px;
+                font-size: 0.85rem;
+            }
+            .activation-input-group .btn {
+                padding: 8px 14px;
+                font-size: 0.8rem;
+            }
         }
     </style>
 </head>
